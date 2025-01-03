@@ -1,7 +1,17 @@
-import type { NextConfig } from "next";
+import { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = [
+        ...(config.externals || []),
+        {
+          "@napi-rs/canvas": "@napi-rs/canvas",
+        },
+      ];
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
