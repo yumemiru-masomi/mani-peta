@@ -1,3 +1,4 @@
+// src/app/api/sensitive-texts/route.ts
 import { NextResponse } from "next/server";
 import vision from "@google-cloud/vision";
 
@@ -49,25 +50,30 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    console.log("🩵", contentType);
+    console.log("🩵 Content-Type:", contentType);
 
     // 画像データを取得
     const formData = await request.formData();
     const file = formData.get("file") as File;
+    const maskText = formData.get("maskText")?.toString();
 
-    if (!file) {
+    if (!file || !maskText) {
       return NextResponse.json(
         { error: "No file uploaded. Please upload an image." },
         { status: 400 }
       );
     }
 
-    console.log("🧡", file);
+    console.log("🧡 File received:", file);
+    console.log("💚 Mask Text received:", maskText);
 
     // 画像をGoogle Vision APIに送信
     const fileBuffer = Buffer.from(await file.arrayBuffer());
     const [detectionResult] = await visionClient.textDetection(fileBuffer);
     const textAnnotations = detectionResult.textAnnotations;
+
+    console.log("fileBuffer🌟", fileBuffer);
+    console.log("textAnnotations💫", textAnnotations);
 
     if (!textAnnotations || textAnnotations.length === 0) {
       return NextResponse.json(
@@ -111,7 +117,8 @@ export async function POST(request: Request) {
 
   以下のテキストに基づいて、隠すべき情報を JSON 形式で返してください。
   形式: { "sensitiveTexts": ["隠すべきテキスト1", "隠すべきテキスト2"] }
-  text context: ${textContext}`;
+  text context: ${textContext}
+  以下のテキストも隠すべき情報として認識してください: "${maskText}"`;
 
     // Generative AI にプロンプトを送信して結果を取得
     const aiResponse = await generativeModel.generateContent(prompt);
