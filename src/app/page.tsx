@@ -18,6 +18,7 @@ export default function Home() {
     register, // 入力フィールドをRHFに登録
     handleSubmit,
     control, // フォーム送信時の関数
+    reset,
   } = useForm<FormData>({
     defaultValues: {
       maskTexts: [{ text: "" }], // 初期値を設定
@@ -185,7 +186,12 @@ export default function Home() {
 
               {/* 閉じるボタン */}
               <button
-                onClick={() => setImagePreview(null)} // プレビューを閉じる
+                onClick={() => {
+                  setImagePreview(null); // プレビューを閉じる
+                  reset({
+                    maskTexts: [{ text: "" }], // フォームの値をリセット
+                  });
+                }}
                 className="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg shadow hover:shadow-lg transition transform hover:scale-105"
               >
                 閉じる
