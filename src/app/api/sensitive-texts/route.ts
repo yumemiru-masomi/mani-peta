@@ -55,17 +55,24 @@ export async function POST(request: Request) {
     // 画像データを取得
     const formData = await request.formData();
     const file = formData.get("file") as File;
-    const maskText = formData.get("maskText")?.toString();
+    console.log("🧡 File received:", file);
+    const maskTexts = formData.get("maskTexts")?.toString() ?? "[]"; // デフォルト値を空のJSON配列に設定
+    console.log("💚 Mask Text received:", maskTexts);
+    // maskTextsをJSONパースして配列に変換
+    const parsedMaskTexts: { text: string }[] = JSON.parse(maskTexts);
+    console.log("💛", parsedMaskTexts);
+    const inputTexts = parsedMaskTexts
+      .flatMap((item) => item.text.split(",")) // ',' で分割して平坦化
+      .map((text) => text.trim()) // 前後の余白を削除
+      .filter((text) => text !== ""); // 空文字を除外
+    console.log("🩵 Mask Text received:", inputTexts);
 
-    if (!file || !maskText) {
+    if (!file || !maskTexts) {
       return NextResponse.json(
         { error: "No file uploaded. Please upload an image." },
         { status: 400 }
       );
     }
-
-    console.log("🧡 File received:", file);
-    console.log("💚 Mask Text received:", maskText);
 
     // 画像をGoogle Vision APIに送信
     const fileBuffer = Buffer.from(await file.arrayBuffer());
@@ -91,6 +98,7 @@ export async function POST(request: Request) {
 
     // 検出テキストをコンマ区切りの文字列に変換
     const textContext = detectedTexts.join(", ");
+    console.log("🩶", textContext);
 
     // Generative AI モデルを取得し、レスポンスの形式を指定
     const generativeModel = generativeAIClient.getGenerativeModel({
@@ -118,7 +126,9 @@ export async function POST(request: Request) {
   以下のテキストに基づいて、隠すべき情報を JSON 形式で返してください。
   形式: { "sensitiveTexts": ["隠すべきテキスト1", "隠すべきテキスト2"] }
   text context: ${textContext}
-  以下のテキストも隠すべき情報として認識してください: "${maskText}"`;
+  以下のテキストも隠すべき情報として認識してください: ${JSON.stringify(
+    inputTexts
+  )}`;
 
     // Generative AI にプロンプトを送信して結果を取得
     const aiResponse = await generativeModel.generateContent(prompt);

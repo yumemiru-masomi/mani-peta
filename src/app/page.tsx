@@ -1,13 +1,13 @@
 // src/app/page.tsx
 "use client";
 import Image from "next/image";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { useState } from "react";
 
 export default function Home() {
   type FormData = {
     file: FileList; // ファイルは FileList 型
-    maskText: string; // テキストは文字列型
+    maskTexts: { text: string }[]; // 動的な入力フィールド
   };
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -16,16 +16,27 @@ export default function Home() {
   // React Hook Formの初期化
   const {
     register, // 入力フィールドをRHFに登録
-    handleSubmit, // フォーム送信時の関数
-  } = useForm<FormData>();
+    handleSubmit,
+    control, // フォーム送信時の関数
+  } = useForm<FormData>({
+    defaultValues: {
+      maskTexts: [{ text: "" }], // 初期値を設定
+    },
+  });
+
+  // useFieldArrayで動的なフィールドを管理
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "maskTexts", // 配列形式のフィールド名
+  });
 
   const onSubmit = async (data: FormData) => {
-    const { file, maskText } = data; // フォームデータを取得
+    const { file, maskTexts } = data; // フォームデータを取得
 
-    console.log("maskText", maskText);
+    console.log("maskText", maskTexts);
     console.log("file", file);
 
-    if (!file || !maskText) {
+    if (!file || !maskTexts) {
       alert("Please upload an image and enter text to mask.");
       return;
     }
@@ -39,8 +50,8 @@ export default function Home() {
       const fileItem = file[0];
       formData.append("file", fileItem);
       console.log("file", file);
-      formData.append("maskText", maskText);
-      console.log("maskText", maskText);
+      formData.append("maskTexts", JSON.stringify(maskTexts));
+      console.log("maskText", maskTexts);
 
       console.log("Sending API request...");
       // APIにリクエストを送信
@@ -91,12 +102,41 @@ export default function Home() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Text to Mask
               </label>
-              <input
-                type="text"
-                placeholder="Enter text to mask"
-                {...register("maskText")}
-                className="block w-full text-sm text-gray-800 bg-gray-50 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 focus:outline-none p-3 shadow-sm transition-transform transform hover:scale-105"
-              />
+              {fields.map((field: { id: string }, index: number) => (
+                <div key={field.id} className="mb-4">
+                  <div className="flex items-center space-x-4">
+                    {/* 入力フィールド */}
+                    <input
+                      type="text"
+                      placeholder={`Enter text to mask ${index + 1}`}
+                      {...register(`maskTexts.${index}.text` as const)}
+                      className="flex-1 text-sm text-gray-800 bg-gray-50 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 focus:outline-none p-3 shadow-sm"
+                    />
+
+                    {/* マイナスボタン: 最後以外の全てのフィールドに表示 */}
+                    {fields.length > 1 && index < fields.length - 1 && (
+                      <button
+                        type="button"
+                        onClick={() => remove(index)} // フィールドを削除
+                        className="bg-red-500 text-white w-10 h-10 rounded-full hover:bg-red-600 transition-transform transform hover:scale-105 shadow flex items-center justify-center"
+                      >
+                        −
+                      </button>
+                    )}
+
+                    {/* プラスボタン: 最後のフィールドにのみ表示 */}
+                    {index === fields.length - 1 && (
+                      <button
+                        type="button"
+                        onClick={() => append({ text: "" })} // 新しいフィールドを追加
+                        className="bg-blue-500 text-white w-10 h-10 rounded-full hover:bg-blue-600 transition-transform transform hover:scale-105 shadow flex items-center justify-center"
+                      >
+                        +
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* 実行ボタン */}
