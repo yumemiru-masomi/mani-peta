@@ -14,7 +14,12 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
 
   // React Hook Formの初期化
-  const { register, handleSubmit, control } = useForm<FormData>({
+  const {
+    register, // 入力フィールドをRHFに登録
+    handleSubmit,
+    control, // フォーム送信時の関数
+    reset,
+  } = useForm<FormData>({
     defaultValues: {
       maskTexts: [{ text: "" }],
     },
@@ -169,7 +174,12 @@ export default function Home() {
               </button>
               {/* 閉じるボタン */}
               <button
-                onClick={() => setImagePreview(null)} // プレビューを閉じる
+                onClick={() => {
+                  setImagePreview(null); // プレビューを閉じる
+                  reset({
+                    maskTexts: [{ text: "" }], // フォームの値をリセット
+                  });
+                }}
                 className="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg shadow hover:shadow-lg transition transform hover:scale-105"
               >
                 閉じる
