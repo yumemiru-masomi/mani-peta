@@ -6,35 +6,28 @@ import { useState } from "react";
 
 export default function Home() {
   type FormData = {
-    file: FileList; // ファイルは FileList 型
-    maskTexts: { text: string }[]; // 動的な入力フィールド
+    file: FileList;
+    maskTexts: { text: string }[];
   };
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // React Hook Formの初期化
-  const {
-    register, // 入力フィールドをRHFに登録
-    handleSubmit,
-    control, // フォーム送信時の関数
-  } = useForm<FormData>({
+  const { register, handleSubmit, control } = useForm<FormData>({
     defaultValues: {
-      maskTexts: [{ text: "" }], // 初期値を設定
+      maskTexts: [{ text: "" }],
     },
   });
 
   // useFieldArrayで動的なフィールドを管理
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "maskTexts", // 配列形式のフィールド名
+    name: "maskTexts",
   });
 
   const onSubmit = async (data: FormData) => {
-    const { file, maskTexts } = data; // フォームデータを取得
-
-    console.log("maskText", maskTexts);
-    console.log("file", file);
+    const { file, maskTexts } = data;
 
     if (!file || !maskTexts) {
       alert("Please upload an image and enter text to mask.");
@@ -49,17 +42,13 @@ export default function Home() {
       const formData = new FormData();
       const fileItem = file[0];
       formData.append("file", fileItem);
-      console.log("file", file);
       formData.append("maskTexts", JSON.stringify(maskTexts));
-      console.log("maskText", maskTexts);
 
-      console.log("Sending API request...");
       // APIにリクエストを送信
       const response = await fetch("/api/sensitive-texts", {
         method: "POST",
         body: formData,
       });
-      console.log("response", response);
 
       if (!response.ok) {
         throw new Error("Failed to process the image");
@@ -96,7 +85,6 @@ export default function Home() {
                 className="block w-full text-sm text-gray-800 bg-gray-50 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 focus:outline-none p-3 shadow-sm transition-transform transform hover:scale-105"
               />
             </div>
-
             {/* テキスト入力 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -112,7 +100,6 @@ export default function Home() {
                       {...register(`maskTexts.${index}.text` as const)}
                       className="flex-1 text-sm text-gray-800 bg-gray-50 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 focus:outline-none p-3 shadow-sm"
                     />
-
                     {/* マイナスボタン: 最後以外の全てのフィールドに表示 */}
                     {fields.length > 1 && index < fields.length - 1 && (
                       <button
@@ -123,7 +110,6 @@ export default function Home() {
                         −
                       </button>
                     )}
-
                     {/* プラスボタン: 最後のフィールドにのみ表示 */}
                     {index === fields.length - 1 && (
                       <button
@@ -138,7 +124,6 @@ export default function Home() {
                 </div>
               ))}
             </div>
-
             {/* 実行ボタン */}
             <button
               type="submit"
@@ -182,7 +167,6 @@ export default function Home() {
               >
                 保存する
               </button>
-
               {/* 閉じるボタン */}
               <button
                 onClick={() => setImagePreview(null)} // プレビューを閉じる

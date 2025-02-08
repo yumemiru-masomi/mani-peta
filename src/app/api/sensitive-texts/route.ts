@@ -15,18 +15,18 @@ export const config = {
 
 // AIに返すレスポンスのスキーマを定義
 const schema = {
-  description: "List of sensitive texts", // スキーマの説明
-  type: SchemaType.OBJECT, // オブジェクト型で定義
+  description: "List of sensitive texts",
+  type: SchemaType.OBJECT,
   properties: {
     sensitiveTexts: {
-      type: SchemaType.ARRAY, // 配列型として定義
-      description: "Array of sensitive text strings", // 配列の説明
+      type: SchemaType.ARRAY,
+      description: "Array of sensitive text strings",
       items: {
-        type: SchemaType.STRING, // 配列要素は文字列型
+        type: SchemaType.STRING,
       },
     },
   },
-  required: ["sensitiveTexts"], // 必須プロパティを指定
+  required: ["sensitiveTexts"],
 };
 
 // POSTメソッドの処理
@@ -50,22 +50,18 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    console.log("🩵 Content-Type:", contentType);
 
     // 画像データを取得
     const formData = await request.formData();
     const file = formData.get("file") as File;
-    console.log("🧡 File received:", file);
-    const maskTexts = formData.get("maskTexts")?.toString() ?? "[]"; // デフォルト値を空のJSON配列に設定
-    console.log("💚 Mask Text received:", maskTexts);
+    const maskTexts = formData.get("maskTexts")?.toString() ?? "[]";
+
     // maskTextsをJSONパースして配列に変換
     const parsedMaskTexts: { text: string }[] = JSON.parse(maskTexts);
-    console.log("💛", parsedMaskTexts);
     const inputTexts = parsedMaskTexts
-      .flatMap((item) => item.text.split(",")) // ',' で分割して平坦化
-      .map((text) => text.trim()) // 前後の余白を削除
-      .filter((text) => text !== ""); // 空文字を除外
-    console.log("🩵 Mask Text received:", inputTexts);
+      .flatMap((item) => item.text.split(","))
+      .map((text) => text.trim())
+      .filter((text) => text !== "");
 
     if (!file || !maskTexts) {
       return NextResponse.json(
@@ -79,9 +75,6 @@ export async function POST(request: Request) {
     const [detectionResult] = await visionClient.textDetection(fileBuffer);
     const textAnnotations = detectionResult.textAnnotations;
 
-    console.log("fileBuffer🌟", fileBuffer);
-    console.log("textAnnotations💫", textAnnotations);
-
     if (!textAnnotations || textAnnotations.length === 0) {
       return NextResponse.json(
         { message: "No text detected in the image." },
@@ -91,21 +84,18 @@ export async function POST(request: Request) {
 
     // 検出されたテキストを配列に変換
     const detectedTexts = textAnnotations
-      .slice(1) // 最初の要素はフルテキスト
+      .slice(1)
       .map((annotation) => annotation.description);
-
-    console.log("Extracted Text Array🥰:", detectedTexts);
 
     // 検出テキストをコンマ区切りの文字列に変換
     const textContext = detectedTexts.join(", ");
-    console.log("🩶", textContext);
 
     // Generative AI モデルを取得し、レスポンスの形式を指定
     const generativeModel = generativeAIClient.getGenerativeModel({
-      model: "models/gemini-1.5-pro", // 使用するモデル名
+      model: "models/gemini-1.5-pro",
       generationConfig: {
-        responseMimeType: "application/json", // レスポンスを JSON 形式で取得
-        responseSchema: schema, // スキーマを設定
+        responseMimeType: "application/json",
+        responseSchema: schema,
       },
     });
 
@@ -133,11 +123,9 @@ export async function POST(request: Request) {
     // Generative AI にプロンプトを送信して結果を取得
     const aiResponse = await generativeModel.generateContent(prompt);
     const responseText = aiResponse.response.text();
-    console.log("AI Response:", responseText);
 
     // レスポンスをJSONとして解析し、sensitiveTextsを取得
     const { sensitiveTexts } = JSON.parse(responseText);
-    console.log("Sensitive Texts to Mask:🔥", sensitiveTexts);
 
     // 隠すべきテキストをJSONファイルに保存
     await writeFile(
@@ -153,7 +141,6 @@ export async function POST(request: Request) {
     // Canvasを作成し、画像を描画
     const canvas = createCanvas(imageWidth, imageHeight);
     const context = canvas.getContext("2d");
-
     context.drawImage(image, 0, 0, imageWidth, imageHeight);
 
     // コマンドライン引数からマスク対象の単語を取得
@@ -167,8 +154,6 @@ export async function POST(request: Request) {
         sensitiveTexts.includes(annotation.description) &&
         annotation.description.toLowerCase() !== targetWord
       ) {
-        console.log(`Text to mask: ${annotation.description}`);
-
         // テキストを囲む座標を取得
         const vertices =
           annotation.boundingPoly && annotation.boundingPoly.vertices;
