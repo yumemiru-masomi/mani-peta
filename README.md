@@ -5,16 +5,23 @@ Cloud Vision API を活用して**画像内の個人情報を自動で検出し�
 
 ## Getting Started
 
-はじめに、開発サーバーを起動します。
+はじめにリポジトリをクローンします。
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+$ git clone git@github.com:yumemiru-masomi/sensitive-text-masker.git
+$ cd sensitive-text-masker
+```
+
+環境変数を設定します。
+
+```sh
+$ cp .env.example .env
+```
+
+次に、開発サーバーを起動します。
+
+```bash
+$ npm run dev
 ```
 
 ブラウザで[http://localhost:3000](http://localhost:3000)を開くとサービスが表示されます。
