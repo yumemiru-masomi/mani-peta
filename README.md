@@ -29,4 +29,4 @@ bun dev
 
 使い方の詳細については、下記の記事をご覧ください。
 
-- 【個人開発】Cloud Vision API で個人情報を隠すサービスを開発しました 🎉
+- [【個人開発】Cloud Vision API で個人情報を隠すサービスを開発しました 🎉](https://zenn.dev/yumemi9808/articles/a28e0442a51ef9)
