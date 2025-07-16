@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sensitive Text Masker",
+  title: "Mani Peta",
   description:
     "スクリーンショット内の本名や企業名、クライアント名などの個人情報をAIが自動検出し、適切にマスキングするサービス",
 };
