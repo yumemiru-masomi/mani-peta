@@ -2,7 +2,6 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import Header from "@/components/Header";
 
 export default function TextMaskScreen() {
   type FormData = {
@@ -72,10 +71,8 @@ export default function TextMaskScreen() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-100">
-      <Header currentPage="text" />
-
       {/* Main Content */}
-      <div className="flex items-center justify-center min-h-[calc(100vh-80px)] py-8">
+      <div className="flex items-center justify-center min-h-[calc(100vh-120px)] px-4 py-8">
         <div className="w-full max-w-lg bg-white shadow-2xl rounded-3xl p-8">
           <h2 className="text-3xl font-extrabold text-center mb-8 text-gray-900 tracking-wide">
             Text Mask

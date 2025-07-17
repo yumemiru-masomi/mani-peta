@@ -1,5 +1,5 @@
 import SignInScreen from "@/screen/SignInScreen";
 
-export default function SignIn() {
+export default function Page() {
   return <SignInScreen />;
 }

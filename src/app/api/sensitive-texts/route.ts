@@ -4,7 +4,6 @@ import vision from "@google-cloud/vision";
 
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
-import { writeFile } from "fs/promises";
 
 export const config = {
   api: {
@@ -126,12 +125,6 @@ export async function POST(request: Request) {
 
     // レスポンスをJSONとして解析し、sensitiveTextsを取得
     const { sensitiveTexts } = JSON.parse(responseText);
-
-    // 隠すべきテキストをJSONファイルに保存
-    await writeFile(
-      "sensitiveTexts.json",
-      JSON.stringify(sensitiveTexts, null, 2)
-    );
 
     // 画像を読み込み
     const image = await loadImage(fileBuffer);
