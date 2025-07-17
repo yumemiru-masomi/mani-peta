@@ -23,6 +23,7 @@ export default function ImageEditor({
   imageWidth,
   imageHeight,
   onCirclesChange,
+  onSave,
 }: ImageEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [circles, setCircles] = useState<CircleData[]>(initialCircles);
@@ -435,16 +436,10 @@ export default function ImageEditor({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `face-masked-${Date.now()}.png`;
-        link.click();
-        URL.revokeObjectURL(url);
-      }
-    }, "image/png");
+    // 親コンポーネントから渡されたonSaveを使用
+    if (onSave) {
+      onSave(canvas);
+    }
   };
 
   // JPEG形式で保存
