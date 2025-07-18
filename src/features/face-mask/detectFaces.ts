@@ -1,4 +1,5 @@
 import vision from "@google-cloud/vision";
+import { writeFileSync, existsSync } from "fs";
 
 interface FaceAnnotation {
   boundingPoly?: {
@@ -7,6 +8,19 @@ interface FaceAnnotation {
       y?: number | null;
     }>;
   };
+}
+
+const base64Key = process.env.GOOGLE_APPLICATION_CREDENTIALS_B64;
+const keyPath = "/tmp/service-account.json";
+
+if (base64Key && !existsSync(keyPath)) {
+  try {
+    writeFileSync(keyPath, Buffer.from(base64Key, "base64"));
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = keyPath;
+    console.log("✅ Service account key written to /tmp/service-account.json");
+  } catch (err) {
+    console.error("❌ Failed to write credentials file:", err);
+  }
 }
 
 export async function detectFaces(

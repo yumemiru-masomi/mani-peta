@@ -1,4 +1,5 @@
 import vision from "@google-cloud/vision";
+import { writeFileSync, existsSync } from "fs";
 
 interface TextAnnotation {
   description?: string | null;
@@ -14,6 +15,20 @@ export interface DetectedText {
   textAnnotations: TextAnnotation[];
   detectedTexts: string[];
   textContext: string;
+}
+
+// Vercel上で実行時にGOOGLE_APPLICATION_CREDENTIALS_B64からJSONを復元
+const base64Key = process.env.GOOGLE_APPLICATION_CREDENTIALS_B64;
+const keyPath = "/tmp/service-account.json";
+
+if (base64Key && !existsSync(keyPath)) {
+  try {
+    writeFileSync(keyPath, Buffer.from(base64Key, "base64"));
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = keyPath;
+    console.log("✅ Service account key written to /tmp/service-account.json");
+  } catch (err) {
+    console.error("❌ Failed to write credentials file:", err);
+  }
 }
 
 export async function detectText(fileBuffer: Buffer): Promise<DetectedText> {
