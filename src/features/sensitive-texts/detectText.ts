@@ -17,8 +17,8 @@ export interface DetectedText {
   textContext: string;
 }
 
-// Vercel上で実行時にGOOGLE_APPLICATION_CREDENTIALS_B64からJSONを復元
-const base64Key = process.env.GOOGLE_APPLICATION_CREDENTIALS_B64;
+// Vercel上で実行時にGOOGLE_APPLICATION_CREDENTIALSからJSONを復元
+const base64Key = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 const keyPath = "/tmp/service-account.json";
 
 if (base64Key && !existsSync(keyPath)) {

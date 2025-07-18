@@ -10,7 +10,7 @@ interface FaceAnnotation {
   };
 }
 
-const base64Key = process.env.GOOGLE_APPLICATION_CREDENTIALS_B64;
+const base64Key = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 const keyPath = "/tmp/service-account.json";
 
 if (base64Key && !existsSync(keyPath)) {
