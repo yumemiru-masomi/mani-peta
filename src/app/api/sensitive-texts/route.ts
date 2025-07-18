@@ -65,7 +65,10 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error processing image:", error);
     return NextResponse.json(
-      { error: "An error occurred while processing the image." },
+      {
+        error: "An error occurred while processing the image.",
+        message: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }
